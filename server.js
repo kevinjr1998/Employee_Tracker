@@ -30,8 +30,8 @@ function Init() {
       .prompt({
         type: "list",
         name: "task",
-        message: "Enter Job Role",
-        choices: ["View All Departments, View All Roles", "View All Employees", "Add A Department", "Add A Role", "Add an Employee", "Update Employee Role"],
+        message: "What Do You Want To Do?",
+        choices: ["View All Departments", "View All Roles", "View All Employees", "Add A Department", "Add A Role", "Add an Employee", "Update Employee Role"],
       })
       .then((answer) => {
         switch (answer.task) {
@@ -59,5 +59,28 @@ function Init() {
           }
       })
 }
+
+
+function getDepartments(){
+    db.query(`SELECT * FROM departments`, function (err, results) {
+        err ? console.log(err) : console.table(results);
+        Init();
+      });
+}
+
+function getRoles(){
+    db.query(`SELECT * FROM employee_roles`, function (err, results) {
+        err ? console.log(err) : console.table(results);
+        Init();
+      });
+}
+
+function getEmployees(){
+    db.query(`SELECT * FROM employees`, function (err, results) {
+        err ? console.log(err) : console.table(results);
+        Init();
+      });
+}
+
 
 Init();
