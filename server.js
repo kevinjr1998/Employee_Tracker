@@ -76,8 +76,22 @@ function getRoles(){
 }
 
 function getEmployees(){
-    db.query(`SELECT * FROM employees`, function (err, results) {
-        err ? console.log(err) : console.table(results);
+    db.query(`SELECT employees.id, employees.first_name, employees.last_name,  employees.manager_id, employee_roles.title AS "Job Role", employee_roles.salary,
+    departments.department
+    FROM employees, employee_roles, departments
+    WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id`, function (err, results) {
+        console.table(results);
+        const employees = results.map(employee => {
+            if (employee.manager_id) {
+                employee.manager = `${results.find(({id}) => id === employee.manager_id).first_name} ${results.find(({id}) => id === employee.manager_id).last_name}` ;
+                debugger;
+            } else {
+                employee.manager = `none`;
+            }
+        
+            return employee;
+        })
+        err ? console.log(err) : console.table(employees);
         Init();
       });
 }
