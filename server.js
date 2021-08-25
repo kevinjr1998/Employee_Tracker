@@ -114,5 +114,46 @@ function addRole(){
     })
 }
 
+
+function addRole(){
+    inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "Name of New Role?",
+            name: "newRole",
+          },
+          {
+              type: "input",
+              message: "Role ID?",
+              name: "newRoleID",
+          },
+          {
+            type: "input",
+            message: "Salary?",
+            name: "salary",
+        },
+        {
+            type: "input",
+            message: "Department?",
+            name: "dept",
+        },
+  ])
+    .then((answers) => {
+        queries.db.query(`
+        INSERT INTO employee_roles (id, title, salary, department_id)
+        VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`, 
+        function(err, results){
+            if (err){
+                console.log(err);
+            } else {
+                console.log(`\n Role Added \n`);
+                console.table(results);
+            }
+            Init();
+        });
+    })
+}
+
 Init();
 

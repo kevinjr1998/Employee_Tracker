@@ -16,8 +16,10 @@
 -- VALUES ("5", "Sales");
 
 
-INSERT INTO employee_roles (id, title, salary, department_id)
-VALUES (200, "Sales Ledger clerk", "300", (SELECT id FROM `departments` WHERE `department` = 'Finance'));
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES ("steve", "wozniak", 
+(SELECT id FROM employee_roles WHERE `title` = 'Lead Software Engineer'), 
+(SELECT id FROM employees a WHERE `first_name` = 'John' AND `last_name` = 'Smith'));
 
 
 
