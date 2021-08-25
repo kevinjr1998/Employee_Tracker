@@ -1,29 +1,10 @@
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const express = require(`express`);
-const password = require(`./password.json`)
+const queries = require("./queries/queries")
 
 const PORT = 3001;
 const app = express();
-
-// Express middleware
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
-
-// Connect to database
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    // MySQL password
-    password: password.password,
-    database: 'employees_db'
-  },
-  console.log(`Connected to the employees_db database.`)
-);
-
-
 
 function Init() {
     inquirer
@@ -36,13 +17,16 @@ function Init() {
       .then((answer) => {
         switch (answer.task) {
             case "View All Departments":
-                getDepartments();
+                queries.getDepartments();
+                Init();
                 break;
             case "View All Roles":
-                getRoles();
+                queries.getRoles();
+                Init();
                 break;
             case "View All Employees":
-                getEmployees();
+                queries.getEmployees();
+                Init();
                 break;
             case "Add A Department":
                 addDepartment();
@@ -61,40 +45,74 @@ function Init() {
 }
 
 
-function getDepartments(){
-    db.query(`SELECT * FROM departments`, function (err, results) {
-        err ? console.log(err) : console.table(results);
-        Init();
-      });
-}
-
-function getRoles(){
-    db.query(`SELECT * FROM employee_roles`, function (err, results) {
-        err ? console.log(err) : console.table(results);
-        Init();
-      });
-}
-
-function getEmployees(){
-    db.query(`SELECT employees.id, employees.first_name, employees.last_name,  employees.manager_id, employee_roles.title AS "Job Role", employee_roles.salary,
-    departments.department
-    FROM employees, employee_roles, departments
-    WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id`, function (err, results) {
-        console.table(results);
-        const employees = results.map(employee => {
-            if (employee.manager_id) {
-                employee.manager = `${results.find(({id}) => id === employee.manager_id).first_name} ${results.find(({id}) => id === employee.manager_id).last_name}` ;
-                debugger;
+function addDepartment(){
+    inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "Name of New Department?",
+            name: "newDept",
+          },
+          {
+              type: "input",
+              message: "Department ID?",
+              name: "newDeptID",
+          }
+    ])
+    .then((answers) => {
+        queries.db.query(`
+        INSERT INTO departments (id, department)
+        VALUES ("${answers.newDeptID}", "${answers.newDept}");`, function(err, results){
+            if (err){
+                console.log(err);
             } else {
-                employee.manager = `none`;
+                console.log(`\n Department Added \n`);
+                console.table(results);
             }
-        
-            return employee;
-        })
-        err ? console.log(err) : console.table(employees);
-        Init();
-      });
+            Init();
+        });
+    })
 }
 
+function addRole(){
+    inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "Name of New Role?",
+            name: "newRole",
+          },
+          {
+              type: "input",
+              message: "Role ID?",
+              name: "newRoleID",
+          },
+          {
+            type: "input",
+            message: "Salary?",
+            name: "salary",
+        },
+        {
+            type: "input",
+            message: "Department?",
+            name: "dept",
+        },
+  ])
+    .then((answers) => {
+        queries.db.query(`
+        INSERT INTO employee_roles (id, title, salary, department_id)
+        VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`, 
+        function(err, results){
+            if (err){
+                console.log(err);
+            } else {
+                console.log(`\n Role Added \n`);
+                console.table(results);
+            }
+            Init();
+        });
+    })
+}
 
 Init();
+
