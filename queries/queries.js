@@ -58,35 +58,35 @@ function getEmployees(){
       });
 }
 
-function addDepartment(){
-    inquirer
-    .prompt([
-        {
-            type: "input",
-            message: "Name of New Department?",
-            name: "newDept",
-          },
-          {
-              type: "input",
-              message: "Department ID?",
-              name: "newDeptID",
-          }
-    ])
-    .then((answers) => {
-        db.query(`
-        INSERT INTO departments (id, department)
-        VALUES ("${answers.newDeptID}", "${answers.newDept}");`, function(err, results){
-            if (err){
-                console.log(err);
-            } else {
-                console.log(`\n`);
-                console.table(results);
-            }
-            Init();
-        });
-    })
+// function addDepartment(){
+//     inquirer
+//     .prompt([
+//         {
+//             type: "input",
+//             message: "Name of New Department?",
+//             name: "newDept",
+//           },
+//           {
+//               type: "input",
+//               message: "Department ID?",
+//               name: "newDeptID",
+//           }
+//     ])
+//     .then((answers) => {
+//         db.query(`
+//         INSERT INTO departments (id, department)
+//         VALUES ("${answers.newDeptID}", "${answers.newDept}");`, function(err, results){
+//             if (err){
+//                 console.log(err);
+//             } else {
+//                 console.log(`\n`);
+//                 console.table(results);
+//             }
+//             Init();
+//         });
+//     })
 
-}
+// }
 
 
 module.exports = {
