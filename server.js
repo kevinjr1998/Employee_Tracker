@@ -2,9 +2,24 @@ const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const express = require(`express`);
 const queries = require("./queries/queries")
+const password = require("./password.json");
+
 
 const PORT = 3001;
 const app = express();
+
+const db = mysql.createConnection(
+    {
+      host: 'localhost',
+      // MySQL username,
+      user: 'root',
+      // MySQL password
+      password: password.password,
+      database: 'employees_db'
+    },
+    console.log(`Connected to the employees_db database.`)
+  );
+
 
 function Init() {
     inquirer
@@ -17,16 +32,13 @@ function Init() {
       .then((answer) => {
         switch (answer.task) {
             case "View All Departments":
-                queries.getDepartments();
-                Init();
+                getDepartments();
                 break;
             case "View All Roles":
-                queries.getRoles();
-                Init();
+                getRoles();
                 break;
             case "View All Employees":
-                queries.getEmployees();
-                Init();
+                getEmployees();
                 break;
             case "Add A Department":
                 addDepartment();
@@ -42,6 +54,64 @@ function Init() {
                 break;
           }
       })
+}
+
+
+
+function getDepartments(){
+    db.query(`SELECT * FROM departments`, function (err, results) {
+        if (err){
+            console.log(err);
+        } else {
+            console.log(`\n`);
+            console.table(results);
+        } 
+        Init();
+      });
+
+     
+}
+
+function getRoles(){
+    db.query(`
+    SELECT departments.department, employee_roles.title AS "Job Role", employee_roles.id AS "role_id", employee_roles.salary
+    FROM departments, employee_roles
+    WHERE departments.id = employee_roles.department_id;`, function (err, results) {
+        if (err){
+            console.log(err);
+        } else {
+            console.log(`\n`);
+            console.table(results);
+        }
+        Init();
+      });
+      
+}
+
+function getEmployees(){
+    db.query(`
+    SELECT employees.id, employees.first_name, employees.last_name,  employees.manager_id, employee_roles.title AS "Job Role", employee_roles.salary,
+    departments.department
+    FROM employees, employee_roles, departments
+    WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id;`, function (err, results) {
+        const employees = results.map(employee => {
+            if (employee.manager_id) {
+                employee.manager = `${results.find(({id}) => id === employee.manager_id).first_name} ${results.find(({id}) => id === employee.manager_id).last_name}` ;
+            } else {
+                employee.manager = `none`;
+            }
+        
+            return employee;
+        })
+            if (err){
+                console.log(err);
+            } else {
+                console.log(`\n`);
+                console.table(employees);
+            }
+           Init();  
+      });
+     
 }
 
 
