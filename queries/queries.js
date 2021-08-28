@@ -1,5 +1,4 @@
 const mysql = require("mysql2");
-const inquirer = require("inquirer");
 const password = require("../password.json");
 
 const db = mysql.createConnection(
@@ -11,8 +10,7 @@ const db = mysql.createConnection(
     password: password.password,
     database: "employees_db",
   },
-  console.log(`Connected to the employees_db database.\n
-  Welcome to the Employee Tracker.\n`)
+  console.log(`Connected to the employees_db database.\nWelcome to the Employee Tracker.\n`)
 );
 
 function deptQuery() {
@@ -104,8 +102,8 @@ function addNewEmp(answers) {
 async function updateRole(answers) {
   const queryRes = await db.promise().query(`
     UPDATE employees
-    SET role_id = '${answers.empNameID}'
-    WHERE id = '${answers.newEmpRoleID};`);
+    SET role_id = ${answers.newEmpRoleID}
+    WHERE id = ${answers.empNameID};`);
   return queryRes;
 }
 
