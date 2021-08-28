@@ -53,7 +53,6 @@ async function newRoleAdd(answers){
 
 async function rolesOnly(){
    const [rows, fields] = await db.promise().query(`SELECT title, id from employee_roles;`);
-//    console.table(queryRes);
    const roleTitles = rows.map(function(role){
 
     return { 
@@ -64,6 +63,7 @@ async function rolesOnly(){
 });
         return roleTitles;
     }
+
 
 async function deptsOnly(){
     const [rows, fields] = await db.promise().query(`SELECT department, id FROM departments;`);
@@ -78,7 +78,6 @@ async function deptsOnly(){
 
  async function namesOnly(){
     const [row, fields] = await db.promise().query(`SELECT first_name, last_name, id FROM employees;`);
-    console.table(row)
     const inquirerNameChoices = row.map(function(result){
          return { 
             name: `${result.first_name} ${result.last_name}`, 
@@ -107,6 +106,13 @@ async function deptsOnly(){
  }
 
 
+ async function deleteEmployee(answers){
+    const queryRes =  await db.promise().query(`DELETE FROM employees WHERE id = '${answers.empNameID}';`);
+         return queryRes;
+ }
+ 
+
+
 module.exports = {
     deptQuery,
     roleQuery,
@@ -118,4 +124,5 @@ module.exports = {
     namesOnly,
     addNewEmp,
     updateRole,
+    deleteEmployee,
 }
