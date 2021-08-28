@@ -28,10 +28,9 @@ function roleQuery() {
 
 function empQuery() {
   const queryRes = db.promise().query(`
-    SELECT employees.id, employees.first_name, employees.last_name,  employees.manager_id, employee_roles.title AS "Job Role", employee_roles.salary,
-    departments.department
-    FROM employees, employee_roles, departments
-    WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id;`);
+  SELECT employees.id, employees.first_name, employees.last_name, employee_roles.title AS "Job Role", employee_roles.salary, departments.department, employees.manager_id
+  FROM employees, employee_roles, departments
+  WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id;`);
   return queryRes;
 }
 

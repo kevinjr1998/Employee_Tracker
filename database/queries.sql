@@ -42,8 +42,20 @@
 -- INSERT INTO employee_roles(id, title, salary, department_id) +
 -- VALUES (005, "Accounts Junior", "18000", );
 
-INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ('Michael', 'Scott', '100', NULL);
+-- INSERT INTO employees (first_name, last_name, role_id, manager_id)
+-- VALUES ('Michael', 'Scott', '100', NULL);
+
+
+--  SELECT employees.id, employees.first_name, employees.last_name, employee_roles.title AS "Job Role", employee_roles.salary,
+--     departments.department
+--     FROM employees, employee_roles, departments
+--     WHERE (employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id) 
+--     OR employeeS.role_id = NULL;
+
+SELECT employees.id, employees.first_name, employees.last_name, employee_roles.title AS "Job Role", employee_roles.salary, departments.department, employees.manager_id
+FROM employees, employee_roles, departments
+WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id;
+
 
 
 -- IN (SELECT a.id FROM employees a 
