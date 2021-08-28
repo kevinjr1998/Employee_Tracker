@@ -1,8 +1,9 @@
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
 const express = require(`express`);
-const queries = require("./queries/queries")
+// const queries = require("./queries/queries")
 const password = require("./password.json");
+const { query } = require("express");
 
 
 const PORT = 3001;
@@ -59,7 +60,7 @@ function Init() {
 
 
 function getDepartments(){
-    db.query(`SELECT * FROM departments`, function (err, results) {
+    db.query(`SELECT * FROM departments;`, function (err, results) {
         if (err){
             console.log(err);
         } else {
@@ -130,7 +131,7 @@ function addDepartment(){
           }
     ])
     .then((answers) => {
-        queries.db.query(`
+        db.query(`
         INSERT INTO departments (id, department)
         VALUES ("${answers.newDeptID}", "${answers.newDept}");`, function(err, results){
             if (err){
@@ -145,6 +146,7 @@ function addDepartment(){
 }
 
 function addRole(){
+
     inquirer
     .prompt([
         {
@@ -169,8 +171,8 @@ function addRole(){
         },
   ])
     .then((answers) => {
-        queries.db.query(`
-        INSERT INTO employee_roles (id, title, salary, department_id)
+        db.query(`
+        INSERT INTO employee_roles(id, title, salary, department_id)
         VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`, 
         function(err, results){
             if (err){
@@ -185,45 +187,104 @@ function addRole(){
 }
 
 
-function addRole(){
+function addEmployee(){
+    db.query(`SELECT title from employee_roles;`,
+    function(err, results){
+     const roleTitles = results.map(function(result){
+        return result.title;
+    });
     inquirer
     .prompt([
         {
             type: "input",
-            message: "Name of New Role?",
-            name: "newRole",
+            message: "First Name of New Employee?",
+            name: "newEmpFirstName",
           },
           {
               type: "input",
-              message: "Role ID?",
-              name: "newRoleID",
+              message: "Last Name of New Employee?",
+              name: "newEmpLastName",
           },
           {
-            type: "input",
-            message: "Salary?",
-            name: "salary",
+            type: "list",
+            message: "Employee Role?",
+            name: "newEmpRole",
+            choices: roleTitles,
         },
         {
             type: "input",
-            message: "Department?",
-            name: "dept",
+            message: "Employee Manager First Name",
+            name: "newEmpManagerFirstName",
+        },
+        {
+            type: "input",
+            message: "Employee Manager Last Name",
+            name: "newEmpManagerLastName",
         },
   ])
     .then((answers) => {
-        queries.db.query(`
-        INSERT INTO employee_roles (id, title, salary, department_id)
-        VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`, 
+        db.query(`
+        INSERT INTO employees (first_name, last_name, role_id, manager_id)
+        VALUES ("Randy", "Baker", 
+        (SELECT id FROM employee_roles WHERE 'title' = 'Lead Salesperson'), 
+        (SELECT id FROM employees a WHERE 'first_name' = '' AND 'last_name' = ''));`
+         , 
         function(err, results){
+         
             if (err){
                 console.log(err);
             } else {
-                console.log(`\n Role Added \n`);
+                console.log(`\n Employee Added \n`);
                 console.table(results);
             }
             Init();
         });
     })
+})
 }
 
-Init();
+function updateRole(){
+    db.query(`SELECT title FROM employee_roles;`,
+    function(err, results){
+        const roleTitles = results.map(function(result){
+            return result.title;
+    });
+    inquirer
+    .prompt([
+        {
+            type: "input",
+            message: "First Name of Employee?",
+            name: "empFirstName",
+          },
+          {
+              type: "input",
+              message: "Last Name of Employee?",
+              name: "empLastName",
+          },
+          {
+            type: "list",
+            message: "Updated Role?",
+            name: "newEmpRole",
+            choices: roleTitles,
+        },
+  ])
+    .then((answers) => {
+        db.query(`
+        UPDATE employees
+        SET role_id = (SELECT id FROM employee_roles WHERE title = '${answers.newEmpRole}')
+        WHERE last_name = '${answers.empLastName}' AND first_name = '${answers.empFirstName}';`
+         , 
+        function(err, results){
+         
+            if (err){
+                console.log(err);
+            } else {
+                console.log(`\n Employee Updated \n`);
+                console.table(results);
+            }
+            Init();
+        });
+    })
+})
+}
 

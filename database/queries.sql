@@ -16,14 +16,17 @@
 -- VALUES ("5", "Sales");
 
 
-INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ("steve", "wozniak", 
-(SELECT id FROM employee_roles WHERE `title` = 'Lead Software Engineer'), 
-(SELECT id FROM employees a WHERE `first_name` = 'John' AND `last_name` = 'Smith'));
+--  INSERT INTO employees (first_name, last_name, role_id, manager_id)
+--         VALUES ("Randy", "Baker", 
+--         (SELECT id FROM employee_roles WHERE 'title' = 'Lead Salesperson'), 
+--         (SELECT id FROM employees a WHERE 'first_name' = '' AND 'last_name' = ''));
 
 
+-- SELECT title from employee_roles;
 
-
+-- UPDATE employees
+-- SET role_id = (SELECT id FROM employee_roles WHERE title = 'Lead Salesperson')
+-- WHERE last_name = 'Smith' AND first_name = 'John';
 
 
 -- SELECT a.id, a.first_name, a.last_name, employee_roles.title AS `Job Role`, employee_roles.salary, b.first_name AS managerFirstName, b.last_name AS managerLastName 
