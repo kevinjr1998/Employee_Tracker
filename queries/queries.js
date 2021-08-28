@@ -44,9 +44,75 @@ function deptQueryAdd(answers){
     return queryRes;
 }
 
+async function newRoleAdd(answers){
+   const queryRes =  await db.promise().query(`
+        INSERT INTO employee_roles(id, title, salary, department_id)
+        VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`);
+        return queryRes;
+}
+
+async function rolesOnly(){
+   const [rows, fields] = await db.promise().query(`SELECT title, id from employee_roles;`);
+//    console.table(queryRes);
+   const roleTitles = rows.map(function(role){
+
+    return { 
+        name: `${role.title}`, 
+        value: role.id, 
+    };
+    
+});
+        return roleTitles;
+    }
+
+async function deptsOnly(){
+    const [rows, fields] = await db.promise().query(`SELECT department FROM departments;`);
+    const deptTitles = rows.map(function(dept){
+         return dept.department;
+     });
+     return deptTitles;
+ }
+
+ async function namesOnly(){
+    const [row, fields] = await db.promise().query(`SELECT first_name, last_name, id FROM employees;`);
+    console.table(row)
+    const inquirerNameChoices = row.map(function(result){
+         return { 
+            name: `${result.first_name} ${result.last_name}`, 
+            value: result.id } ;
+     });
+  
+    return inquirerNameChoices;
+ }
+
+ function addNewEmp(answers) {
+    const queryRes = db.promise().query(`
+    INSERT INTO employees (first_name, last_name, role_id, manager_id)
+    VALUES ('${answers.newEmpFirstName}', '${answers.newEmpLastName}', '${answers.newEmpRoleID}', '${answers.newEmpManagerID}');
+  `)
+    debugger
+    return queryRes;
+ }
+
+
+ async function updateRole(){
+    const queryRes = await db.promise().query(`
+    UPDATE employees
+    SET role_id = '${answers.empNameID}'
+    WHERE id = '${answers.newEmpRoleID};`)
+    return queryRes;
+ }
+
+
 module.exports = {
     deptQuery,
     roleQuery,
     empQuery,
     deptQueryAdd,
+    newRoleAdd,
+    rolesOnly,
+    deptsOnly,
+    namesOnly,
+    addNewEmp,
+    updateRole,
 }

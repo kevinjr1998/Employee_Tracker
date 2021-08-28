@@ -47,11 +47,10 @@ function getDepartments(){
     .then(([rows, fields]) => {
             console.log(`\n`);
             console.table(rows);
-            Init();  
         }) 
+        .then(() => Init())
     .catch(console.log)
-        Init
-      };
+ };
 
 
 
@@ -63,7 +62,6 @@ function getRoles(){
             Init();  
         }) 
     .catch(console.log)
-    Init();
       };
       
 
@@ -83,10 +81,9 @@ function getEmployees(){
 
         console.log(`\n`);
         console.table(employees);
-        Init();
         })
+        .then(() => Init())
         .catch(console.log)
-        Init();
 }
 
 
@@ -111,15 +108,16 @@ function addDepartment(){
         console.table(rows); 
         Init();           
         })
+        .then(() => Init())
         .catch(console.log);
-        Init();
+        
     })
      
 };
 
 
-function addRole(){
-
+async function addRole(){
+   const deptChoices = await queries.deptsOnly()
     inquirer
     .prompt([
         {
@@ -138,34 +136,31 @@ function addRole(){
             name: "salary",
         },
         {
-            type: "input",
+            type: "list",
             message: "Department?",
             name: "dept",
+            choices: depts
         },
   ])
     .then((answers) => {
-        db.query(`
-        INSERT INTO employee_roles(id, title, salary, department_id)
-        VALUES (${answers.newRoleID}, "${answers.newRole}", "${answers.salary}", (SELECT id FROM departments WHERE department = '${answers.dept}'));`, 
-        function(err, results){
-            if (err){
-                console.log(err);
-            } else {
-                console.log(`\n Role Added \n`);
-                console.table(results);
-            }
-            Init();
-        });
-    })
-}
+        queries.newRoleAdd(answers)
+        .then(([rows, fields]) => {
+            console.log(`\n Role Added \n`);
+            console.table(rows);
+            
+        }) 
+        .then(() => Init())
+        .catch(console.log)
+    
+        })
+    }
+)}
 
 
-function addEmployee(){
-    db.query(`SELECT title from employee_roles;`,
-    function(err, results){
-     const roleTitles = results.map(function(result){
-        return result.title;
-    });
+async function addEmployee(){
+    const roleChoices = await queries.rolesOnly()
+    const nameChoices = await queries.namesOnly();
+    console.log(nameChoices.name);
     inquirer
     .prompt([
         {
@@ -181,84 +176,56 @@ function addEmployee(){
           {
             type: "list",
             message: "Employee Role?",
-            name: "newEmpRole",
-            choices: roleTitles,
+            name: "newEmpRoleID",
+            choices: roleChoices,
         },
         {
-            type: "input",
-            message: "Employee Manager First Name",
-            name: "newEmpManagerFirstName",
-        },
-        {
-            type: "input",
-            message: "Employee Manager Last Name",
-            name: "newEmpManagerLastName",
+            type: "list",
+            message: "Employee Manager Name",
+            name: "newEmpManagerID",
+            choices: nameChoices,
         },
   ])
     .then((answers) => {
-        db.query(`
-        INSERT INTO employees (first_name, last_name, role_id, manager_id)
-        VALUES ("Randy", "Baker", 
-        (SELECT id FROM employee_roles WHERE 'title' = 'Lead Salesperson'), 
-        (SELECT id FROM employees a WHERE 'first_name' = '' AND 'last_name' = ''));`
-         , 
-        function(err, results){
-         
-            if (err){
-                console.log(err);
-            } else {
+        debugger;
+        queries.addNewEmp(answers)
+        .then(([rows, fields]) => {
                 console.log(`\n Employee Added \n`);
-                console.table(results);
-            }
-            Init();
+                console.table(rows);
+            })
+        .then(() =>Init())
+        .catch(console.log)
         });
-    })
-})
-}
+    };
 
- function updateRole(){
-   db.query(`SELECT title FROM employee_roles;`,
-    function(err, results){
-        const roleTitles = results.map(function(result){
-            return result.title;
-    });
+
+async function updateRole(){
+  const roleChoices = await queries.rolesOnly();
+  const nameChoices = await queries.namesOnly();
     inquirer
     .prompt([
         {
-            type: "input",
-            message: "First Name of Employee?",
-            name: "empFirstName",
-          },
-          {
-              type: "input",
-              message: "Last Name of Employee?",
-              name: "empLastName",
+            type: "list",
+            message: "Name of Employee?",
+            name: "empNameID",
+            choices: nameChoices,
           },
           {
             type: "list",
             message: "Updated Role?",
-            name: "newEmpRole",
-            choices: roleTitles,
+            name: "newEmpRoleID",
+            choices: roleChoices,
         },
   ])
     .then((answers) => {
-        db.query(`
-        UPDATE employees
-        SET role_id = (SELECT id FROM employee_roles WHERE title = '${answers.newEmpRole}')
-        WHERE last_name = '${answers.empLastName}' AND first_name = '${answers.empFirstName}';`
-         , 
-        function(err, results){
-         
-            if (err){
-                console.log(err);
-            } else {
-                console.log(`\n Employee Updated \n`);
-                console.table(results);
-            }
-            Init();
+        queries.updateRole(answers)
+        .then(([rows, fields]) =>{
+            console.log(`\n Employee Updated \n`);
+            console.table(rows);
+        })
+        .then(() => Init())
+        .catch(console.log)
         });
-    })
-})
-}
+    }
 
 Init();
