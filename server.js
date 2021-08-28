@@ -1,25 +1,5 @@
 const inquirer = require("inquirer");
-const mysql = require('mysql2');
-const express = require(`express`);
-// const queries = require("./queries/queries")
-const password = require("./password.json");
-const { query } = require("express");
-
-
-const PORT = 3001;
-const app = express();
-
-const db = mysql.createConnection(
-    {
-      host: 'localhost',
-      // MySQL username,
-      user: 'root',
-      // MySQL password
-      password: password.password,
-      database: 'employees_db'
-    },
-    console.log(`Connected to the employees_db database.`)
-  );
+const queries = require("./queries/queries");
 
 
 function Init() {
@@ -53,6 +33,9 @@ function Init() {
             case "Update Employee Role":
                 updateRole();
                 break;
+            case "Quit":
+                exitApp();
+                break;
           }
       })
 }
@@ -60,59 +43,50 @@ function Init() {
 
 
 function getDepartments(){
-    db.query(`SELECT * FROM departments;`, function (err, results) {
-        if (err){
-            console.log(err);
-        } else {
+   queries.deptQuery()
+    .then(([rows, fields]) => {
             console.log(`\n`);
-            console.table(results);
-        } 
-        Init();
-      });
+            console.table(rows);
+            Init();  
+        }) 
+    .catch(console.log)
+        Init
+      };
 
-     
-}
+
 
 function getRoles(){
-    db.query(`
-    SELECT departments.department, employee_roles.title AS "Job Role", employee_roles.id AS "role_id", employee_roles.salary
-    FROM departments, employee_roles
-    WHERE departments.id = employee_roles.department_id;`, function (err, results) {
-        if (err){
-            console.log(err);
-        } else {
+        queries.roleQuery()
+        .then(([rows, fields]) => {
             console.log(`\n`);
-            console.table(results);
-        }
-        Init();
-      });
+            console.table(rows);
+            Init();  
+        }) 
+    .catch(console.log)
+    Init();
+      };
       
-}
+
 
 function getEmployees(){
-    db.query(`
-    SELECT employees.id, employees.first_name, employees.last_name,  employees.manager_id, employee_roles.title AS "Job Role", employee_roles.salary,
-    departments.department
-    FROM employees, employee_roles, departments
-    WHERE employee_roles.department_id = departments.id AND employees.role_id = employee_roles.id;`, function (err, results) {
-        const employees = results.map(employee => {
+    queries.empQuery()
+    .then(([rows, fields]) => {
+        const employees = rows.map(employee => {
             if (employee.manager_id) {
-                employee.manager = `${results.find(({id}) => id === employee.manager_id).first_name} ${results.find(({id}) => id === employee.manager_id).last_name}` ;
+                employee.manager = `${rows.find(({id}) => id === employee.manager_id).first_name} ${rows.find(({id}) => id === employee.manager_id).last_name}` ;
             } else {
                 employee.manager = `none`;
             }
         
             return employee;
+        });
+
+        console.log(`\n`);
+        console.table(employees);
+        Init();
         })
-            if (err){
-                console.log(err);
-            } else {
-                console.log(`\n`);
-                console.table(employees);
-            }
-           Init();  
-      });
-     
+        .catch(console.log)
+        Init();
 }
 
 
@@ -131,19 +105,18 @@ function addDepartment(){
           }
     ])
     .then((answers) => {
-        db.query(`
-        INSERT INTO departments (id, department)
-        VALUES ("${answers.newDeptID}", "${answers.newDept}");`, function(err, results){
-            if (err){
-                console.log(err);
-            } else {
-                console.log(`\n Department Added \n`);
-                console.table(results);
-            }
-            Init();
-        });
+        queries.deptQueryAdd(answers)
+        .then(([rows, fields]) => {
+        console.log(`\n Department Added \n`);
+        console.table(rows); 
+        Init();           
+        })
+        .catch(console.log);
+        Init();
     })
-}
+     
+};
+
 
 function addRole(){
 
@@ -243,8 +216,8 @@ function addEmployee(){
 })
 }
 
-function updateRole(){
-    db.query(`SELECT title FROM employee_roles;`,
+ function updateRole(){
+   db.query(`SELECT title FROM employee_roles;`,
     function(err, results){
         const roleTitles = results.map(function(result){
             return result.title;
@@ -288,3 +261,4 @@ function updateRole(){
 })
 }
 
+Init();

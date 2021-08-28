@@ -32,3 +32,19 @@
 -- SELECT a.id, a.first_name, a.last_name, employee_roles.title AS `Job Role`, employee_roles.salary, b.first_name AS managerFirstName, b.last_name AS managerLastName 
 -- FROM employees a, employees b, employee_roles
 -- WHERE a.manager_id = a.id OR a.manager_id IS NULL;
+
+
+
+DELETE FROM employees 
+WHERE last_name = 'Smith' AND first_name = 'John';
+
+
+-- IN (SELECT a.id FROM employees a 
+--     JOIN employees b 
+--     ON (a.id = b.id)
+--     WHERE b.last_name = 'Smith' AND b.first_name = 'John');
+
+--  SELECT a.id FROM employees a 
+--     JOIN employees b 
+--     ON (a.id = b.id)
+--     WHERE b.last_name = 'Smith' AND b.first_name = 'John';
