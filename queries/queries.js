@@ -66,9 +66,12 @@ async function rolesOnly(){
     }
 
 async function deptsOnly(){
-    const [rows, fields] = await db.promise().query(`SELECT department FROM departments;`);
+    const [rows, fields] = await db.promise().query(`SELECT department, id FROM departments;`);
     const deptTitles = rows.map(function(dept){
-         return dept.department;
+         return {
+            name: dept.department,
+            value: dept.id
+        };
      });
      return deptTitles;
  }

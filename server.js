@@ -42,6 +42,7 @@ function Init() {
 
 
 
+
 function getDepartments(){
    queries.deptQuery()
     .then(([rows, fields]) => {
@@ -59,9 +60,9 @@ function getRoles(){
         .then(([rows, fields]) => {
             console.log(`\n`);
             console.table(rows);
-            Init();  
-        }) 
-    .catch(console.log)
+        })
+        .then(() =>Init())
+        .catch(console.log)
       };
       
 
@@ -81,9 +82,9 @@ function getEmployees(){
 
         console.log(`\n`);
         console.table(employees);
-        })
-        .then(() => Init())
-        .catch(console.log)
+    })
+    .then(() => Init())
+    .catch(console.log)
 }
 
 
@@ -105,19 +106,18 @@ function addDepartment(){
         queries.deptQueryAdd(answers)
         .then(([rows, fields]) => {
         console.log(`\n Department Added \n`);
-        console.table(rows); 
-        Init();           
+        console.table(rows);
+        return;        
         })
-        .then(() => Init())
         .catch(console.log);
-        
     })
+    .then(() =>Init())
      
 };
 
 
 async function addRole(){
-   const deptChoices = await queries.deptsOnly()
+   const deptChoices = await queries.deptsOnly();
     inquirer
     .prompt([
         {
@@ -139,7 +139,7 @@ async function addRole(){
             type: "list",
             message: "Department?",
             name: "dept",
-            choices: depts
+            choices: deptChoices
         },
   ])
     .then((answers) => {
@@ -147,20 +147,19 @@ async function addRole(){
         .then(([rows, fields]) => {
             console.log(`\n Role Added \n`);
             console.table(rows);
-            
+            return;
         }) 
-        .then(() => Init())
         .catch(console.log)
-    
-        })
-    }
-)}
+    })
+    .then(() => Init())
+
+}
+
 
 
 async function addEmployee(){
     const roleChoices = await queries.rolesOnly()
     const nameChoices = await queries.namesOnly();
-    console.log(nameChoices.name);
     inquirer
     .prompt([
         {
@@ -192,10 +191,11 @@ async function addEmployee(){
         .then(([rows, fields]) => {
                 console.log(`\n Employee Added \n`);
                 console.table(rows);
+                return;
             })
-        .then(() =>Init())
         .catch(console.log)
-        });
+    })
+    .then(() =>Init())
     };
 
 
@@ -223,9 +223,9 @@ async function updateRole(){
             console.log(`\n Employee Updated \n`);
             console.table(rows);
         })
-        .then(() => Init())
         .catch(console.log)
-        });
+    })
+    .then(() =>Init())
     }
 
 Init();
