@@ -35,8 +35,15 @@
 
 
 
-DELETE FROM employees 
-WHERE last_name = 'Smith' AND first_name = 'John';
+-- DELETE FROM employee_roles 
+-- WHERE id =  ;
+
+
+-- INSERT INTO employee_roles(id, title, salary, department_id) +
+-- VALUES (005, "Accounts Junior", "18000", );
+
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES ('Michael', 'Scott', '100', NULL);
 
 
 -- IN (SELECT a.id FROM employees a 
