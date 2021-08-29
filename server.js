@@ -129,8 +129,6 @@ function addDepartment() {
           console.log("\n");
           console.table(rows);
           console.log(`\n Department Added \n`);
-
-          return;
         })
         .catch(console.log);
     })
@@ -170,8 +168,6 @@ async function addRole() {
           console.log("\n");
           console.table(rows);
           console.log(`\n Role Added \n`);
-
-          return;
         })
         .catch(console.log);
     })
@@ -207,15 +203,12 @@ async function addEmployee() {
       },
     ])
     .then((answers) => {
-      debugger;
       queries
         .addNewEmp(answers)
         .then(([rows, fields]) => {
           console.log("\n");
           console.table(rows);
           console.log(`\n Employee Added \n`);
-
-          return;
         })
         .catch(console.log);
     })
